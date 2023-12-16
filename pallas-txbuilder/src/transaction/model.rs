@@ -452,7 +452,7 @@ impl Output {
 
     pub fn set_datum_hash(mut self, datum_hash: Hash<32>) -> Self {
         self.datum = Some(Datum {
-            kind: DatumKind::Inline,
+            kind: DatumKind::Hash,
             bytes: datum_hash.to_vec().into(),
         });
 
@@ -609,6 +609,44 @@ pub struct BuiltTransaction {
 
 impl BuiltTransaction {
     pub fn sign(mut self, secret_key: ed25519::SecretKey) -> Result<Self, TxBuilderError> {
+        let pubkey: [u8; 32] = secret_key
+            .public_key()
+            .as_ref()
+            .try_into()
+            .map_err(|_| TxBuilderError::MalformedKey)?;
+
+        let signature: [u8; 64] = secret_key.sign(self.tx_hash.0).as_ref().try_into().unwrap();
+
+        match self.era {
+            BuilderEra::Babbage => {
+                let mut new_sigs = self.signatures.unwrap_or_default();
+
+                new_sigs.insert(Bytes32(pubkey), Bytes64(signature));
+
+                self.signatures = Some(new_sigs);
+
+                // TODO: chance for serialisation round trip issues?
+                let mut tx = babbage::Tx::decode_fragment(&self.tx_bytes.0)
+                    .map_err(|_| TxBuilderError::CorruptedTxBytes)?;
+
+                let mut vkey_witnesses = tx.transaction_witness_set.vkeywitness.unwrap_or_default();
+
+                vkey_witnesses.push(babbage::VKeyWitness {
+                    vkey: Vec::from(pubkey.as_ref()).into(),
+                    signature: Vec::from(signature.as_ref()).into(),
+                });
+
+                tx.transaction_witness_set.vkeywitness = Some(vkey_witnesses);
+
+                self.tx_bytes = tx.encode_fragment().unwrap().into();
+            }
+        }
+
+        Ok(self)
+    }
+
+    //for extented
+    pub fn sign_extended(mut self, secret_key: ed25519::SecretKeyExtended) -> Result<Self, TxBuilderError> {
         let pubkey: [u8; 32] = secret_key
             .public_key()
             .as_ref()
