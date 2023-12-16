@@ -207,3 +207,4 @@ impl GenericClient {
 }
 
 pub type Client = GenericClient;
+pub type NodeClient = GenericClient;
