@@ -183,7 +183,7 @@ impl NodeClient {
         let cs_channel = plexer.subscribe_client(PROTOCOL_N2C_CHAIN_SYNC);
         let sq_channel = plexer.subscribe_client(PROTOCOL_N2C_STATE_QUERY);
         let tm_channel = plexer.subscribe_client(PROTOCOL_N2C_TX_MONITOR);
-        let ltxs_channel = plexer.subscribe_client(PROTOCOL_N2N_TX_SUBMISSION);
+        let ltxs_channel = plexer.subscribe_client(PROTOCOL_N2C_TX_SUBMISSION);
 
         let plexer_handle = tokio::spawn(async move { plexer.run().await });
 
