@@ -15,7 +15,7 @@ use crate::{
     miniprotocols::{
         blockfetch, chainsync, handshake, localstate, PROTOCOL_N2C_CHAIN_SYNC,
         PROTOCOL_N2C_HANDSHAKE, PROTOCOL_N2C_STATE_QUERY, PROTOCOL_N2N_BLOCK_FETCH,
-        PROTOCOL_N2N_CHAIN_SYNC, txmonitor, PROTOCOL_N2C_TX_MONITOR
+        PROTOCOL_N2N_CHAIN_SYNC, txmonitor, PROTOCOL_N2C_TX_MONITOR, localtxsubmission, PROTOCOL_N2C_TX_SUBMISSION
     },
     multiplexer::{self, Bearer},
 };
@@ -168,6 +168,8 @@ pub struct NodeClient {
     pub chainsync: chainsync::N2CClient,
     pub statequery: localstate::Client,
     pub txmonitor: txmonitor::Client,
+    pub localtxsubmission: localtxsubmission::Client,
+
 }
 
 impl NodeClient {
@@ -181,6 +183,7 @@ impl NodeClient {
         let cs_channel = plexer.subscribe_client(PROTOCOL_N2C_CHAIN_SYNC);
         let sq_channel = plexer.subscribe_client(PROTOCOL_N2C_STATE_QUERY);
         let tm_channel = plexer.subscribe_client(PROTOCOL_N2C_TX_MONITOR);
+        let ltxs_channel = plexer.subscribe_client(PROTOCOL_N2C_TX_SUBMISSION);
 
         let plexer_handle = tokio::spawn(async move { plexer.run().await });
 
@@ -202,6 +205,7 @@ impl NodeClient {
             chainsync: chainsync::Client::new(cs_channel),
             statequery: localstate::Client::new(sq_channel),
             txmonitor: txmonitor::Client::new(tm_channel),
+            localtxsubmission: localtxsubmission::Client::new(ltxs_channel),
         })
     }
 
@@ -285,6 +289,10 @@ impl NodeClient {
 
     pub fn txmonitor(&mut self) -> &mut txmonitor::Client {
         &mut self.txmonitor
+    }
+
+    pub fn localtxsubmission(&mut self) -> &mut localtxsubmission::Client {
+        &mut self.localtxsubmission
     }
 
     pub fn abort(&mut self) {
