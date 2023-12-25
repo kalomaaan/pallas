@@ -2,7 +2,7 @@ mod babbage;
 mod transaction;
 
 pub use babbage::BuildBabbage;
-pub use transaction::model::{BuiltTransaction, Input, Output, ScriptKind, StagingTransaction};
+pub use transaction::model::{BuiltTransaction, Input, Output, ScriptKind, StagingTransaction, ExUnits}; //added exunits
 
 #[derive(Debug, Clone, PartialEq, thiserror::Error)]
 pub enum TxBuilderError {
