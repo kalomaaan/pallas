@@ -11,14 +11,14 @@ pub enum TransactionStatus {
     Built,
 }
 
-#[derive(PartialEq, Eq, Hash, Debug)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone)]
 pub struct Bytes32(pub [u8; 32]);
 
-impl Clone for Bytes32 {
-    fn clone(&self) -> Self {
-        Bytes32(self.0.clone())
-    }
-}
+// impl Clone for Bytes32 {
+//     fn clone(&self) -> Self {
+//         Bytes32(self.0.clone())
+//     }
+// }
 
 #[derive(Hash, PartialEq, Eq, Debug)]
 pub struct Bytes64(pub [u8; 64]);
