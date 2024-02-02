@@ -1,3 +1,4 @@
+use std::default;
 use std::marker::PhantomData;
 
 use thiserror::Error;
@@ -47,6 +48,11 @@ where
     /// Returns an error if the agency is not ours or if the outbound state is
     /// invalid.
     pub async fn submit_tx(&mut self, tx: Tx) -> Result<Response<Reject>, Error> {
+        //lets go barber style
+        self.state = State::Idle;
+        self.pd_tx = Default::default();
+        self.pd_reject = Default::default();
+        
         self.send_submit_tx(tx).await?;
         self.recv_submit_tx_response().await
     }
