@@ -1,8 +1,7 @@
-use std::default;
 use std::marker::PhantomData;
 
 use thiserror::Error;
-use tracing::debug;
+use tracing::{debug, info};
 
 use pallas_codec::Fragment;
 
@@ -48,11 +47,6 @@ where
     /// Returns an error if the agency is not ours or if the outbound state is
     /// invalid.
     pub async fn submit_tx(&mut self, tx: Tx) -> Result<Response<Reject>, Error> {
-        //lets go barber style
-        self.state = State::Idle;
-        self.pd_tx = Default::default();
-        self.pd_reject = Default::default();
-        
         self.send_submit_tx(tx).await?;
         self.recv_submit_tx_response().await
     }
@@ -166,7 +160,7 @@ where
         self.send_message(&msg).await?;
         self.state = State::Busy;
 
-        debug!("sent SubmitTx");
+        info!("sent SubmitTx");
 
         Ok(())
     }
@@ -176,15 +170,17 @@ where
     /// # Errors
     /// Returns an error if the inbound message is invalid.
     async fn recv_submit_tx_response(&mut self) -> Result<Response<Reject>, Error> {
-        debug!("waiting for SubmitTx response");
+        info!("waiting for SubmitTx response");
 
         match self.recv_message().await? {
             Message::AcceptTx => {
                 self.state = State::Idle;
+                info!("Message::AcceptTx");
                 Ok(Response::Accepted)
             }
             Message::RejectTx(rejection) => {
                 self.state = State::Idle;
+                info!("Message::RejectT");
                 Ok(Response::Rejected(rejection))
             }
             _ => Err(Error::InvalidInbound),
