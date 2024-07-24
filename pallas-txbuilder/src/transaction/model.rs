@@ -373,7 +373,7 @@ impl StagingTransaction {
 }
 
 // TODO: Don't want our wrapper types in fields public
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Hash)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Hash, Clone)]
 pub struct Input {
     pub tx_hash: TxHash,
     pub txo_index: u64,
