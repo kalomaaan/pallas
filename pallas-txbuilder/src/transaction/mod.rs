@@ -11,7 +11,7 @@ pub enum TransactionStatus {
     Built,
 }
 
-#[derive(PartialEq, Eq, Hash, Debug)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone)]
 pub struct Bytes32(pub [u8; 32]);
 
 #[derive(Hash, PartialEq, Eq, Debug)]
