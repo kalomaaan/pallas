@@ -47,6 +47,13 @@ pub struct StagingTransaction {
 }
 
 impl StagingTransaction {
+    /// Set a precomputed script_data_hash (override). Keeps other fields intact.
+    #[inline(always)]
+    pub fn script_data_hash_override(mut self, bytes: [u8; 32]) -> Self {
+        self.script_data_hash = Some(Bytes32(bytes));
+        self
+    }
+
     pub fn new() -> Self {
         Self {
             version: String::from("v1"),
