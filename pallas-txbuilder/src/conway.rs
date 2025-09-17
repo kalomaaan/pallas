@@ -1,4 +1,4 @@
-use std::ops::Deref;
+use std::{collections::BTreeMap, ops::Deref};
 
 use pallas_codec::utils::CborWrap;
 use pallas_crypto::hash::Hash as CryptoHash; // <- disambiguate
@@ -217,7 +217,7 @@ impl BuildConway for StagingTransaction {
             }
         };
 
-        let witness_set_redeemers = pallas_primitives::conway::Redeemers::List(vec![]);
+        let witness_set_redeemers = pallas_primitives::conway::Redeemers::Map(BTreeMap::new());
 
         let script_data_hash = self.language_view.map(|language_view| {
             let dta = pallas_primitives::conway::ScriptData {
