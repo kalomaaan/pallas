@@ -217,35 +217,36 @@ impl BuildConway for StagingTransaction {
             }
         };
 
-        let witness_set_redeemers = pallas_primitives::conway::Redeemers::Map(BTreeMap::new());
+        let witness_set_redeemers = pallas_primitives::conway::Redeemers::List(redeemers.clone());
 
-        let script_data_hash = self.language_view.map(|language_view| {
-            let dta = pallas_primitives::conway::ScriptData {
-                redeemers: witness_set_redeemers.clone(),
-                datums: if !plutus_data.is_empty() {
-                    Some(plutus_data.clone())
-                } else {
-                    None
-                },
-                language_view,
-            };
-
-            dta.hash()
-        });
-        // let script_data_hash: Option<CryptoHash<32>> =
-        // if let Some(b) = self.script_data_hash.as_ref() {
-        //     // Bytes32 -> CryptoHash<32>
-        //     Some(CryptoHash::<32>::new(b.0))          // or: Some(CryptoHash::<32>::from(b.0))
-        // } else if let Some(language_view) = self.language_view {
+        // let script_data_hash = self.language_view.map(|language_view| {
         //     let dta = pallas_primitives::conway::ScriptData {
         //         redeemers: witness_set_redeemers.clone(),
-        //         datums: if !plutus_data.is_empty() { Some(plutus_data.clone()) } else { None },
+        //         datums: if !plutus_data.is_empty() {
+        //             Some(plutus_data.clone())
+        //         } else {
+        //             None
+        //         },
         //         language_view,
         //     };
-        //     Some(dta.hash())                         // returns &Hash<32>
-        // } else {
-        //     None
-        // };
+
+        //     dta.hash()
+        // });
+        let script_data_hash: Option<CryptoHash<32>> =
+        if let Some(b) = self.script_data_hash.as_ref() {
+            // Bytes32 -> CryptoHash<32>
+            //Some(CryptoHash::<32>::new(b.0))          // or: Some(CryptoHash::<32>::from(b.0))
+            Some(CryptoHash::<32>::from(b.0))
+        } else if let Some(language_view) = self.language_view {
+            let dta = pallas_primitives::conway::ScriptData {
+                redeemers: witness_set_redeemers.clone(),
+                datums: if !plutus_data.is_empty() { Some(plutus_data.clone()) } else { None },
+                language_view,
+            };
+            Some(dta.hash())                         // returns &Hash<32>
+        } else {
+            None
+        };
 
         let mut pallas_tx: Tx = Tx {
             transaction_body: TransactionBody {
